@@ -29,7 +29,7 @@ idade_dias <- idade_meses * 30
 #### Classes dos objetos ####
 
 1 + 1
-"a" + "b" 
+"a" + "b"
 
 a <- 10
 a
@@ -118,7 +118,7 @@ vetor2 <- c(10, 20, 30, 40)
 
 vetor1 + vetor2
 
-# operador %in% 
+# operador %in%
 
 3 %in% c(1, 2, 3)
 
@@ -159,7 +159,7 @@ dados_cliente <- list(
   estado_civil = c(NA, "Solteiro", "Casada")
 )
 
-dados_cliente 
+dados_cliente
 
 as.data.frame(dados_cliente)
 
@@ -194,14 +194,14 @@ rbind() # empilha duas tabelas
 # Criar funções
 
 nome_da_funcao <- function(argumento_1, argumento_2) {
-  
+
   # Código que a função irá executar
-  
+
 }
 
 funcao_somar <- function(x, y) {
   soma <- x + y
-  
+
   soma  # resultado retornado
 }
 
@@ -221,7 +221,7 @@ retornar_maior(10, 20)
 x <- 2
 x <- 1
 
-if (x == 1) {         
+if (x == 1) {
   Sys.time()
 }
 
@@ -240,7 +240,7 @@ minha_soma_NA <- function(x, y) {
     soma <- x + y
     return(soma)
   }
-  
+
   NA
 }
 
@@ -269,7 +269,7 @@ numero_de_colunas <- ncol(mtcars)
 
 for (coluna in 1:numero_de_colunas) {
   media <- mean(mtcars[,coluna])
-  
+
   print(media)
 }
 
@@ -308,64 +308,40 @@ args(esaj::download_cjsg) # obter os argumentos de uma função
 # Importação --------------------------------------------------------------
 
 library(readr)
+library(dplyr)
 
 getwd() # obter working directory
 
 setwd("/cloud/project") # definir working directory
 
-imdb_csv <- read_csv(file = "imdb/imdb.csv")
+imdb_csv <- read_csv(file = "data/imdb.csv")
 
 # Base de dados processuais -----------------------------------------------
-
-# obtendo tabela de classes e assuntos
-classes <- esaj::cjsg_table("classes")
-assuntos <- esaj::cjsg_table("subjects")
-camaras <- esaj::cjsg_table("courts")
 
 # baixando julgados de segundo grau
 
 ?tjsp::baixar_cjsg # ler a documentação da função
 
 # argumentos
-busca <- "algoritmo" 
-dir <- "/cloud/project/cjsg"
+busca <- "algoritmo"
+
+dir.create("data-raw")
+dir.create("data-raw/cjsg")
+dir <- "/cloud/project/data-raw/cjsg"
 
 # rodando a query
 tjsp::baixar_cjsg(livre = busca, diretorio = dir)
 
 args(tjsp::baixar_cjsg)
 
-tjsp::baixar_cjsg(livre = busca, diretorio = diretorio, 
+tjsp::baixar_cjsg(livre = busca, diretorio = diretorio,
                   inicio = "01/01/2021", fim = "08/11/2021")
-tjsp::baixar_cjsg(livre = busca, diretorio = diretorio, 
-                  inicio = "01/01/2021", fim = "08/11/2021", 
+tjsp::baixar_cjsg(livre = busca, diretorio = diretorio,
+                  inicio = "01/01/2021", fim = "08/11/2021",
                   orgao_julgador = "0-1149") #1ª Câmara Reservada de Direito Empresarial
 
 # parseamento
-consulta <- tjsp::ler_cjsg(diretorio = diretorio)
-
-# baixando processos completos
-?tjsp::baixar_cposg()
-?tjsp::autenticar
-
-tjsp::autenticar()
-
-ids <- consulta$processo
-dir <- "/cloud/project/cposg"
-
-tjsp::baixar_cposg(processos = ids, diretorio = dir)
-
-# ler metadados dos processos em SG
-metadados <- tjsp::ler_dados_cposg(diretorio = dir)
-
-# ler informações sobre as partes
-partes <- tjsp::ler_partes(diretorio = dir)
-
-# ler movimentações dos processos
-mov <- tjsp::ler_movimentacao_cposg(diretorio = dir)
-
-# ler decisões
-decisoes <- tjsp::ler_decisoes_cposg(diretorio = dir)
+consulta <- tjsp::ler_cjsg(diretorio = dir)
 
 
 # Manipulação -------------------------------------------------------------
@@ -383,17 +359,17 @@ select(consulta,relator:processo)
 select(consulta, starts_with("data"))
 
 # ordenação
-arrange(consulta, data_julgamento) 
+arrange(consulta, data_julgamento)
 arrange(consulta, data_publicacao)
 arrange(consulta, desc(data_julgamento))
 
-# encadeamento com pipe %>% 
-consulta %>% 
-  arrange(data_julgamento) %>% 
+# encadeamento com pipe %>%
+consulta %>%
+  arrange(data_julgamento) %>%
   select(relator, comarca)
 
 # filtro
-consulta %>% filter(data_julgamento > "2021-07-01") 
+consulta %>% filter(data_julgamento > "2021-07-01")
 consulta %>% filter(data_julgamento > "2021-07-01", data_publicacao > "2021-08-01")
 
 consulta %>%
@@ -411,16 +387,16 @@ consulta_alt %>% summarise(
   variancia_lapso = var(lapso, na.rm = TRUE)
 ) # resume uma única coluna
 
-consulta_alt %>% 
-  group_by(comarca) %>% 
-  summarise(media_lapso = mean(lapso, na.rm = TRUE)) 
+consulta_alt %>%
+  group_by(comarca) %>%
+  summarise(media_lapso = mean(lapso, na.rm = TRUE))
 # resume uma coluna agrupada pelas categorias de uma segunda coluna
 
 #### stringr ####
 
 # str_length
 str_length("São Paulo")
-str_length(c("São Paulo", "Rio de Janeiro", 
+str_length(c("São Paulo", "Rio de Janeiro",
              "Rio Grande do Norte", "Acre"))
 
 # maiúsculas e minúsculas
@@ -455,22 +431,22 @@ ggplot(consulta_alt) +
 
 # gráfico de linhas
 
-consulta_alt %>% 
-  group_by(data_julgamento) %>% 
-  summarise(media_lapso = mean(lapso, na.rm = TRUE)) %>% 
+consulta_alt %>%
+  group_by(data_julgamento) %>%
+  summarise(media_lapso = mean(lapso, na.rm = TRUE)) %>%
   ggplot() +
   geom_line(aes(x = data_julgamento, y = media_lapso))
 
-consulta_alt %>% 
-  filter(comarca == "São Paulo") %>% 
-  group_by(data_julgamento) %>% 
-  summarise(media_lapso = mean(lapso, na.rm = TRUE)) %>% 
+consulta_alt %>%
+  filter(comarca == "São Paulo") %>%
+  group_by(data_julgamento) %>%
+  summarise(media_lapso = mean(lapso, na.rm = TRUE)) %>%
   ggplot() +
   geom_line(aes(x = data_julgamento, y = media_lapso))
 
 # gráfico de barras
 
-consulta_alt %>% 
+consulta_alt %>%
   count(comarca) %>%
   top_n(10, n) %>%
   ggplot() +
