@@ -344,6 +344,7 @@ tjsp::baixar_cjsg(livre = busca, diretorio = diretorio,
 consulta <- tjsp::ler_cjsg(diretorio = dir)
 
 
+
 # Manipulação -------------------------------------------------------------
 
 library(dplyr)
